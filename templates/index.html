@@ -1,7 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Bill Approval Inbox{% endblock %}
 {% block body %}
-  <p class="sub">Bills your team's Claude dropped in — review, edit and approve. {{ total }} total.</p>
+  {% macro money(d) %}{% if d %}{% for cur, amt in d.items() %}{{ cur }} {{ "{:,.0f}".format(amt) }}{% if not loop.last %} · {% endif %}{% endfor %}{% else %}—{% endif %}{% endmacro %}
+
+  <p class="sub">Vendor bills your team captured through Claude — review, approve, and pay. {{ total }} total.</p>
+
+  <!-- Finance-at-a-glance tiles -->
+  <div class="tiles">
+    <div class="tile">
+      <div class="label">Pending approval</div>
+      <div class="big">{{ money(summary.pending_tot) }}</div>
+      <div class="meta">{{ summary.pending_n }} bill{{ '' if summary.pending_n == 1 else 's' }} awaiting a decision</div>
+    </div>
+    <div class="tile ok">
+      <div class="label">Approved · to pay</div>
+      <div class="big">{{ money(summary.approved_tot) }}</div>
+      <div class="meta">{{ summary.approved_n }} bill{{ '' if summary.approved_n == 1 else 's' }} cleared for payment</div>
+    </div>
+    <div class="tile {% if summary.overdue_n %}alert{% endif %}">
+      <div class="label">Overdue</div>
+      <div class="big">{{ summary.overdue_n }}</div>
+      <div class="meta">{% if summary.overdue_n %}{{ money(summary.overdue_tot) }} past due date{% else %}Nothing past due{% endif %}</div>
+    </div>
+  </div>
 
   <div class="chips">
     <a class="chip {% if not status %}active{% endif %}" href="/">All <b>{{ total }}</b></a>
@@ -17,23 +38,31 @@
       <thead><tr><th>Vendor</th><th>Amount</th><th>Due</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody>
       {% for b in bills %}
+        {% set is_overdue = b.due_date and b.due_date < summary.today and b.status in ['pending','approved'] %}
         <tr>
           <td><span class="vendor">{{ b.vendor }}</span>{% if b.source=='claude' %}<span class="src">via Claude</span>{% endif %}</td>
-          <td class="amt">{{ b.currency }} {{ "%.2f"|format(b.amount) }}</td>
-          <td>{{ b.due_date or "—" }}</td>
+          <td class="amt"><span class="cur">{{ b.currency }}</span>{{ "%.2f"|format(b.amount) }}</td>
+          <td>
+            {% if b.due_date %}<span class="{% if is_overdue %}overdue{% endif %}">{{ b.due_date }}</span>{% if is_overdue %}<span class="overdue-tag">overdue</span>{% endif %}{% else %}—{% endif %}
+          </td>
           <td>{{ b.category or "—" }}</td>
           <td><span class="badge b-{{ b.status }}">{{ b.status }}</span></td>
           <td>
             <div class="actions">
-              <a class="btn" href="/bill/{{ b.id }}/edit">Edit</a>
-              {% if b.status != 'approved' and b.status != 'paid' %}
-              <form class="inline" method="post" action="/bill/{{ b.id }}/approve"><button class="btn btn-primary">Approve</button></form>
+              {% if b.status == 'pending' %}
+                <a class="btn" href="/bill/{{ b.id }}/edit">Edit</a>
+                <form class="inline" method="post" action="/bill/{{ b.id }}/approve"><button class="btn btn-primary">Approve</button></form>
+                <form class="inline" method="post" action="/bill/{{ b.id }}/reject"><button class="btn btn-ghost">Reject</button></form>
+                <button type="button" class="btn btn-del" onclick="askDelete('{{ b.id }}','{{ b.vendor|e }}')">Delete</button>
+              {% elif b.status == 'approved' %}
+                <form class="inline" method="post" action="/bill/{{ b.id }}/pay"><button class="btn btn-green">Mark paid</button></form>
+                <form class="inline" method="post" action="/bill/{{ b.id }}/revert"><button class="btn btn-ghost">Revert</button></form>
+              {% elif b.status == 'paid' %}
+                <span class="locked">✓ Paid — locked</span>
+              {% elif b.status == 'rejected' %}
+                <form class="inline" method="post" action="/bill/{{ b.id }}/restore"><button class="btn">Restore</button></form>
+                <button type="button" class="btn btn-del" onclick="askDelete('{{ b.id }}','{{ b.vendor|e }}')">Delete</button>
               {% endif %}
-              {% if b.status == 'approved' %}
-              <form class="inline" method="post" action="/bill/{{ b.id }}/pay"><button class="btn btn-green">Mark paid</button></form>
-              {% endif %}
-              <form class="inline" method="post" action="/bill/{{ b.id }}/delete"
-                    onsubmit="return confirm('Permanently delete this bill? This cannot be undone.');"><button class="btn btn-del">Delete</button></form>
             </div>
           </td>
         </tr>
@@ -41,7 +70,33 @@
       </tbody>
     </table>
     {% else %}
-      <div class="empty">No bills yet. Ask your Claude: <br><b>"Add a bill: AWS, 1200 USD, due 2026-11-30, category cloud."</b></div>
+      <div class="empty">No bills here yet. In Claude, try:<br><b>"Add a bill: AWS, $1,200, due Nov 30, category cloud."</b></div>
     {% endif %}
   </div>
+
+  <!-- Delete confirmation modal (reliable, styled — not the native popup) -->
+  <div class="modal-bg" id="delModal">
+    <div class="modal">
+      <h3>Delete this bill?</h3>
+      <p id="delMsg"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn" onclick="closeDelete()">Cancel</button>
+        <form class="inline" id="delForm" method="post"><button class="btn btn-danger">Delete permanently</button></form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function askDelete(id, vendor){
+      document.getElementById('delMsg').textContent =
+        'The bill from "' + vendor + '" will be permanently removed. This cannot be undone.';
+      document.getElementById('delForm').action = '/bill/' + id + '/delete';
+      document.getElementById('delModal').classList.add('show');
+    }
+    function closeDelete(){ document.getElementById('delModal').classList.remove('show'); }
+    document.getElementById('delModal').addEventListener('click', function(e){
+      if (e.target === this) closeDelete();
+    });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeDelete(); });
+  </script>
 {% endblock %}

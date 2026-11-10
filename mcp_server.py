@@ -2,6 +2,7 @@
 No AI runs here. Claude does the thinking and calls these tools with clean,
 structured data; this code just saves and reads it from our database."""
 import os
+from datetime import datetime
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 from sqlmodel import select
@@ -9,6 +10,32 @@ from db import get_session
 from models import Bill
 
 APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:8000")
+VALID_STATUSES = {"pending", "approved", "paid", "rejected"}
+
+
+def _check_amount(amount: float) -> str | None:
+    """Return an error message if the amount is not a sane, positive number."""
+    try:
+        amount = float(amount)
+    except (TypeError, ValueError):
+        return f"amount must be a number (got {amount!r})."
+    if amount <= 0:
+        return f"amount must be greater than 0 (got {amount})."
+    if amount > 10_000_000:
+        return f"amount {amount} looks too large — please confirm before adding."
+    return None
+
+
+def _check_date(due_date: str | None) -> str | None:
+    """Return an error message if due_date is present but not a real YYYY-MM-DD date."""
+    if not due_date:
+        return None
+    try:
+        datetime.strptime(due_date, "%Y-%m-%d")
+    except ValueError:
+        return (f"due_date must be an ISO date like 2026-11-30 (got {due_date!r}). "
+                "Resolve relative dates (e.g. 'next Friday') before calling.")
+    return None
 
 mcp = FastMCP(
     "volopay-bills",
@@ -39,11 +66,26 @@ def create_bill(vendor: str, amount: float, due_date: str | None = None,
                 notes: str | None = None) -> str:
     """Add a new vendor bill to the approval inbox (status starts as 'pending').
 
-    vendor: who is being paid, e.g. 'AWS'. amount: numeric amount.
-    due_date: optional ISO date 'YYYY-MM-DD'. currency: e.g. 'USD'.
-    category: optional, e.g. 'cloud'. notes: optional free text."""
+    Only use this for an actual vendor bill or invoice the finance team must pay.
+    Do NOT invent a bill from an unrelated or ambiguous request.
+
+    vendor: who is being paid, e.g. 'AWS'. amount: numeric amount, must be > 0.
+    due_date: optional ISO date 'YYYY-MM-DD' (resolve relative dates first).
+    currency: 3-letter code, e.g. 'USD'. category: optional. notes: optional."""
+    # --- Guardrails: AI may propose a bill, but only clean data gets written. ---
+    vendor = (vendor or "").strip()
+    if not vendor:
+        return "⚠️ Bill not created: a vendor name is required."
+    err = _check_amount(amount)
+    if err:
+        return f"⚠️ Bill not created: {err}"
+    err = _check_date(due_date)
+    if err:
+        return f"⚠️ Bill not created: {err}"
+    currency = (currency or "USD").strip().upper()[:4] or "USD"
+    # ---------------------------------------------------------------------------
     with get_session() as s:
-        b = Bill(vendor=vendor, amount=amount, due_date=due_date,
+        b = Bill(vendor=vendor, amount=float(amount), due_date=due_date,
                  currency=currency, category=category, notes=notes,
                  status="pending", source="claude")
         s.add(b)
@@ -71,6 +113,20 @@ def update_bill(bill_id: int, status: str | None = None, vendor: str | None = No
                 category: str | None = None, notes: str | None = None) -> str:
     """Update a bill by id. Set status to pending, approved, paid or rejected,
     or change vendor, amount, due_date, category or notes."""
+    # --- Guardrails: validate every incoming field before touching the record. ---
+    if status is not None and status not in VALID_STATUSES:
+        return (f"⚠️ Bill not updated: status must be one of "
+                f"{', '.join(sorted(VALID_STATUSES))} (got {status!r}).")
+    if amount is not None:
+        err = _check_amount(amount)
+        if err:
+            return f"⚠️ Bill not updated: {err}"
+    err = _check_date(due_date)
+    if err:
+        return f"⚠️ Bill not updated: {err}"
+    if vendor is not None and not vendor.strip():
+        return "⚠️ Bill not updated: vendor name cannot be blank."
+    # ----------------------------------------------------------------------------
     with get_session() as s:
         b = s.get(Bill, bill_id)
         if not b:

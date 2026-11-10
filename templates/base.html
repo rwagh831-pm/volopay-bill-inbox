@@ -5,51 +5,101 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Bill Approval Inbox{% endblock %}</title>
   <style>
-    :root{--bg:#0f1220;--card:#1a1f35;--line:#2a3150;--text:#e8ebf5;--muted:#9aa3c0;
-          --blue:#4f7cff;--green:#2ecc8f;--amber:#f5b041;--red:#e74c6b;--chip:#232a45;}
+    :root{--bg:#0e1120;--card:#171c30;--card2:#1c2238;--line:#2a3150;--text:#e8ebf5;--muted:#9aa3c0;
+          --blue:#4f7cff;--purple:#8a5cff;--green:#2ecc8f;--amber:#f5b041;--red:#e74c6b;--chip:#222a45;}
     *{box-sizing:border-box}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-         background:var(--bg);color:var(--text);line-height:1.5}
-    .wrap{max-width:960px;margin:0 auto;padding:24px 20px 60px}
-    header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
-    header .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#4f7cff,#8a5cff);
-                 display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
-    h1{font-size:20px;margin:0}
-    .sub{color:var(--muted);font-size:13px;margin:2px 0 22px}
-    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+         background:radial-gradient(1200px 500px at 70% -10%,rgba(138,92,255,.10),transparent),var(--bg);
+         color:var(--text);line-height:1.5}
+    .wrap{max-width:1000px;margin:0 auto;padding:26px 20px 70px}
+    a{color:inherit}
+
+    /* Header */
+    header{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+    header .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--purple));
+                 display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:18px}
+    h1{font-size:21px;margin:0;letter-spacing:-.2px}
+    .mcp-badge{margin-left:auto;font-size:12px;color:var(--muted);border:1px solid var(--line);
+               padding:5px 12px;border-radius:999px;display:flex;align-items:center;gap:7px}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(46,204,143,.18)}
+    .sub{color:var(--muted);font-size:13.5px;margin:3px 0 20px}
+
+    /* Summary tiles */
+    .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin:0 0 22px}
+    .tile{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);
+          border-radius:13px;padding:15px 17px}
+    .tile .label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+    .tile .big{font-size:23px;font-weight:750;margin-top:7px;font-variant-numeric:tabular-nums}
+    .tile .meta{font-size:12.5px;color:var(--muted);margin-top:3px}
+    .tile.ok .big{color:var(--blue)}
+    .tile.alert{border-color:rgba(231,76,107,.45);background:linear-gradient(180deg,rgba(231,76,107,.10),var(--card))}
+    .tile.alert .big{color:var(--red)}
+
+    /* Chips */
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
     .chip{background:var(--chip);border:1px solid var(--line);color:var(--muted);
-          padding:6px 12px;border-radius:999px;font-size:13px;text-decoration:none}
-    .chip.active{color:#fff;border-color:var(--blue);background:rgba(79,124,255,.15)}
+          padding:6px 13px;border-radius:999px;font-size:13px;text-decoration:none}
+    .chip.active{color:#fff;border-color:var(--blue);background:rgba(79,124,255,.16)}
     .chip b{color:var(--text)}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+
+    /* Table */
+    .card{background:var(--card);border:1px solid var(--line);border-radius:15px;overflow:hidden}
     table{width:100%;border-collapse:collapse}
-    th,td{text-align:left;padding:13px 16px;font-size:14px;border-bottom:1px solid var(--line)}
-    th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+    th,td{text-align:left;padding:13px 16px;font-size:14px;border-bottom:1px solid var(--line);vertical-align:middle}
+    th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;background:rgba(255,255,255,.02)}
+    tbody tr:hover{background:rgba(255,255,255,.02)}
     tr:last-child td{border-bottom:none}
-    .vendor{font-weight:600}
-    .amt{font-variant-numeric:tabular-nums;font-weight:600}
-    .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+    .vendor{font-weight:650}
+    .amt{font-variant-numeric:tabular-nums;font-weight:650}
+    .cur{color:var(--muted);font-weight:500;font-size:12px;margin-right:3px}
+    .overdue{color:var(--red);font-weight:650}
+    .overdue-tag{font-size:10.5px;color:var(--red);border:1px solid rgba(231,76,107,.4);border-radius:5px;padding:0 5px;margin-left:5px}
+    .badge{display:inline-block;padding:3px 11px;border-radius:999px;font-size:12px;font-weight:650;text-transform:capitalize}
     .b-pending{background:rgba(245,176,65,.15);color:var(--amber)}
-    .b-approved{background:rgba(79,124,255,.15);color:var(--blue)}
-    .b-paid{background:rgba(46,204,143,.15);color:var(--green)}
-    .b-rejected{background:rgba(231,76,107,.15);color:#e74c6b}
-    .src{font-size:11px;color:var(--muted);margin-left:6px}
-    .actions{display:flex;gap:6px;flex-wrap:wrap}
+    .b-approved{background:rgba(79,124,255,.16);color:var(--blue)}
+    .b-paid{background:rgba(46,204,143,.16);color:var(--green)}
+    .b-rejected{background:rgba(231,76,107,.16);color:#e74c6b}
+    .src{font-size:11px;color:var(--muted);margin-left:7px;border:1px solid var(--line);border-radius:5px;padding:0 5px}
+
+    /* Buttons */
+    .actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
     .btn{border:1px solid var(--line);background:#222844;color:var(--text);padding:6px 11px;
-         border-radius:8px;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block}
+         border-radius:8px;font-size:12.5px;cursor:pointer;text-decoration:none;display:inline-block;font-family:inherit}
     .btn:hover{border-color:var(--blue)}
     .btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
     .btn-green{background:var(--green);border-color:var(--green);color:#06281c}
+    .btn-ghost{background:transparent;color:var(--muted)}
+    .btn-ghost:hover{border-color:var(--amber);color:var(--amber)}
     .btn-del{background:transparent;color:var(--muted)}
     .btn-del:hover{border-color:var(--red);color:var(--red)}
-    .empty{padding:48px 16px;text-align:center;color:var(--muted)}
-    form.inline{display:inline}
-    .field{margin-bottom:14px}
+    .locked{color:var(--muted);font-size:12px;display:inline-flex;align-items:center;gap:5px}
+    form.inline{display:inline;margin:0}
+
+    /* Modal */
+    .modal-bg{position:fixed;inset:0;background:rgba(6,8,16,.72);backdrop-filter:blur(2px);
+              display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+    .modal-bg.show{display:flex}
+    .modal{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:24px;max-width:400px;width:100%}
+    .modal h3{margin:0 0 9px;font-size:17px}
+    .modal p{color:var(--muted);font-size:14px;margin:0}
+    .modal-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:20px}
+    .btn-danger{background:var(--red);border-color:var(--red);color:#fff}
+
+    /* Forms */
+    .empty{padding:52px 16px;text-align:center;color:var(--muted)}
+    .field{margin-bottom:15px}
     .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
-    .field input,.field select,.field textarea{width:100%;background:#12172b;border:1px solid var(--line);
-         color:var(--text);padding:9px 11px;border-radius:8px;font-size:14px}
+    .field input,.field select,.field textarea{width:100%;background:#11162a;border:1px solid var(--line);
+         color:var(--text);padding:9px 11px;border-radius:9px;font-size:14px;font-family:inherit}
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     .back{color:var(--muted);text-decoration:none;font-size:13px}
+    .warn{background:rgba(231,76,107,.12);border:1px solid rgba(231,76,107,.4);color:#f2a7b8;
+          padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:16px}
+
+    @media (max-width:720px){
+      .tiles{grid-template-columns:1fr}
+      th:nth-child(4),td:nth-child(4){display:none}
+    }
   </style>
 </head>
 <body>
@@ -57,6 +107,7 @@
     <header>
       <div class="logo">V</div>
       <div><h1>Bill Approval Inbox</h1></div>
+      <div class="mcp-badge"><span class="dot"></span> Connected to Claude via MCP</div>
     </header>
     {% block body %}{% endblock %}
   </div>

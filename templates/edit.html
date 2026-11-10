@@ -2,6 +2,9 @@
 {% block title %}Edit bill{% endblock %}
 {% block body %}
   <p class="sub"><a class="back" href="/">← Back to inbox</a></p>
+  {% if request.query_params.get('error') %}
+  <div class="warn">That didn't save: a bill needs a vendor name, an amount greater than 0, and a valid status.</div>
+  {% endif %}
   {% if bill %}
   <div class="card" style="padding:22px">
     <form method="post" action="/bill/{{ bill.id }}/edit">
