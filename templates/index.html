@@ -32,6 +32,8 @@
               {% if b.status == 'approved' %}
               <form class="inline" method="post" action="/bill/{{ b.id }}/pay"><button class="btn btn-green">Mark paid</button></form>
               {% endif %}
+              <form class="inline" method="post" action="/bill/{{ b.id }}/delete"
+                    onsubmit="return confirm('Permanently delete this bill? This cannot be undone.');"><button class="btn btn-del">Delete</button></form>
             </div>
           </td>
         </tr>
