@@ -87,6 +87,17 @@ A deliberate split, and the whole reason this is safe to ship:
 
 The app never calls an LLM. Claude never holds the data. This keeps the money-sensitive system of record fully under the company's control, while the AI stays a **capture-and-reasoning layer on top** — exactly where spend-management buyers will tolerate AI.
 
+### Guardrails (the app decides what the AI is allowed to write)
+
+Because AI can propose a financial record, the tools validate every call before anything is saved:
+
+- **Amounts** must be a number greater than 0 (and an absurdly large amount is flagged, not silently accepted).
+- **Due dates** must be a real ISO date (`YYYY-MM-DD`); relative phrases like "next Friday" are refused so Claude must resolve them first.
+- **Vendor** cannot be blank; **status** must be one of `pending / approved / paid / rejected`.
+- The **lifecycle is enforced server-side**: a bill can only move along valid transitions (pending→approved→paid, or →rejected→restored), and an approved or paid bill **cannot be hard-deleted** — it stays as an audit trail.
+
+When a call fails a guardrail, the tool returns a clear, Claude-readable reason (e.g. *"Bill not created: amount must be greater than 0"*) instead of writing bad data — so Claude can correct itself in the conversation.
+
 ---
 
 ## 5. Tech stack & why
@@ -116,7 +127,7 @@ The app never calls an LLM. Claude never holds the data. This keeps the money-se
 ## 7. Limitations (honest)
 
 - **No authentication** on the MCP endpoint or the web UI. Anyone with the link can read/write. Fine for a demo; a real deployment needs auth (OAuth on the connector, SSO on the UI).
-- **Free-tier cold start:** Render free sleeps after ~15 min idle, so the first request after idle takes ~30–60s (then it's instant). The first MCP call may time out once and auto-retry.
+- **Free-tier cold start:** Render free sleeps after ~15 min idle, so the first request after idle takes ~30–60s to wake (then it's instant). The first MCP call may time out once and auto-retry. A `GET /health` endpoint is provided as a cheap keep-warm/liveness target; pointing a free uptime pinger at it (e.g. every 10 min) keeps the service awake during an evaluation window. On a paid Render instance this disappears entirely.
 - **No real approval policy engine** — no spend limits, approver hierarchy, or duplicate detection yet.
 - **No file/invoice attachment** — bills are structured fields only, no PDF upload or OCR.
 - **No currency conversion** — currency is stored as a label, not normalized.

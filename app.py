@@ -74,6 +74,13 @@ def _all_bills(status: str | None = None):
         return s.exec(q.order_by(Bill.created_at.desc())).all()
 
 
+@app.get("/health")
+def health():
+    """Lightweight liveness check (no DB hit) — used to keep the free host warm
+    and to confirm the service is up without loading the full UI."""
+    return {"status": "ok"}
+
+
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request, status: str | None = None):
     bills = _all_bills(status)
