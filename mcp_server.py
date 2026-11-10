@@ -3,6 +3,7 @@ No AI runs here. Claude does the thinking and calls these tools with clean,
 structured data; this code just saves and reads it from our database."""
 import os
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 from sqlmodel import select
 from db import get_session
 from models import Bill
@@ -13,6 +14,13 @@ mcp = FastMCP(
     "volopay-bills",
     stateless_http=True,
     streamable_http_path="/",
+    # This is a PUBLIC endpoint any Claude client must reach over HTTPS, so we
+    # turn off the SDK's localhost-only DNS-rebinding host check (it otherwise
+    # rejects the Render domain with "Invalid Host header"). Safe here because
+    # the server exposes no localhost-privileged actions.
+    transport_security=TransportSecuritySettings(
+        enable_dns_rebinding_protection=False
+    ),
     instructions=(
         "Volopay Bill Approval Inbox. Use these tools to add vendor bills a "
         "finance team must approve, list them, and update their status."
