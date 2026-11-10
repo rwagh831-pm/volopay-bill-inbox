@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Volopay Bill Approval Inbox — Strategy</title>
+<style>
+  @page { size: A4; margin: 13mm 14mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    color: #1a1f2e; font-size: 10.3px; line-height: 1.5;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .wrap { max-width: 100%; }
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+
+  /* Header */
+  .hdr { border-bottom: 2.5px solid #4f46e5; padding-bottom: 9px; margin-bottom: 13px;
+         display: flex; align-items: flex-end; justify-content: space-between; }
+  .logo { display:flex; align-items:center; gap:9px; }
+  .mark { width: 26px; height: 26px; border-radius: 7px;
+          background: linear-gradient(135deg,#4f46e5,#7c4dff); color:#fff; font-weight:800;
+          font-size: 16px; display:flex; align-items:center; justify-content:center; }
+  h1 { font-size: 16px; margin: 0; letter-spacing: -.2px; }
+  .sub { color:#5b6478; font-size: 9.2px; margin-top: 2px; }
+  .meta { text-align:right; font-size: 8.8px; color:#5b6478; line-height:1.45; }
+  .meta b { color:#1a1f2e; }
+
+  h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .7px; color:#4f46e5;
+       margin: 13px 0 5px; display:flex; align-items:center; gap:7px; }
+  h2 .n { background:#4f46e5; color:#fff; width:15px; height:15px; border-radius:50%;
+          font-size:8.5px; display:flex; align-items:center; justify-content:center; }
+  h2:first-of-type { margin-top: 4px; }
+  p { margin: 0 0 7px; }
+  .lead { font-size: 10.8px; color:#2a3142; }
+  b, strong { color:#121726; }
+  ul { margin: 2px 0 7px; padding-left: 16px; }
+  li { margin-bottom: 3px; }
+  .accent { color:#4f46e5; font-weight:600; }
+
+  .callout { background:#f3f1fe; border-left:3px solid #4f46e5; padding:7px 10px;
+             border-radius:5px; margin: 8px 0; font-size:10.2px; }
+  .callout b { color:#3b32c4; }
+
+  table { width:100%; border-collapse:collapse; margin: 5px 0 8px; font-size:9.3px; }
+  th, td { text-align:left; padding:4px 7px; border-bottom:1px solid #e4e6ee; vertical-align:top; }
+  th { background:#f6f7fb; color:#3a4254; font-weight:700; font-size:8.6px; text-transform:uppercase; letter-spacing:.4px; }
+  td.y { color:#1f9d6b; font-weight:700; text-align:center; width:14%; }
+  td.n { color:#c0c4d0; text-align:center; width:14%; }
+
+  .cols { display:flex; gap:14px; }
+  .cols > div { flex:1; }
+  .metric { font-size:9.3px; margin-bottom:4px; }
+  .metric b { color:#4f46e5; }
+
+  .foot { margin-top:12px; padding-top:7px; border-top:1px solid #e4e6ee;
+          font-size:8.6px; color:#5b6478; display:flex; gap:16px; flex-wrap:wrap; }
+  .foot a { color:#4f46e5; text-decoration:none; }
+  .tag { display:inline-block; background:#eef0f7; color:#454c5e; border-radius:4px;
+         padding:1px 6px; font-size:8.4px; margin-right:4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ================= PAGE 1 — BUSINESS STRATEGY ================= -->
+<section class="page">
+  <div class="hdr">
+    <div class="logo">
+      <div class="mark">V</div>
+      <div>
+        <h1>Bill Approval Inbox</h1>
+        <div class="sub">An AI-native wedge into Accounts Payable for Volopay</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div><b>Rahul Wagh</b></div>
+      <div>Founder's Office — Product &amp; Growth</div>
+      <div>Page 1 · Business strategy</div>
+    </div>
+  </div>
+
+  <p class="lead">Volopay owns how companies <b>spend</b> on cards. The adjacent, stickier wound is how they <b>pay vendors</b> — Accounts Payable. This is a plan to enter AP through the cheapest possible wedge: let finance teams capture and approve vendor bills by simply talking to Claude, with Volopay as the system of record.</p>
+
+  <h2><span class="n">1</span> The opportunity: AP is Volopay's natural next market</h2>
+  <p>Cards govern discretionary spend; <b>AP is where the largest, most predictable money actually leaves the business</b> — rent, cloud, contractors, SaaS. Yet most finance teams still capture bills by hand, chase approvals across email and Slack, and miss due dates. Volopay already sits on the spend graph and the payment rails, so AP is an expansion, not a new company.</p>
+  <p>The entry point is <b>capture</b> — the top of the AP funnel. Own the moment a bill is logged and approved, and you earn the right to own the <span class="accent">payment</span> that follows, plus the float, FX, and spend data around it.</p>
+
+  <h2><span class="n">2</span> The insight: meet finance inside the AI they already use</h2>
+  <p>Turning "<i>AWS, $1,200, due Nov 30</i>" into a structured, approvable bill is exactly what an LLM does well and what humans find tedious. Every finance team now works beside an AI assistant. So instead of asking them to log into yet another dashboard, <b>meet them where they already are</b> — inside Claude, over the Model Context Protocol (MCP). A bill mentioned in chat becomes a tracked, approvable item in Volopay, with zero new software to learn.</p>
+
+  <h2><span class="n">3</span> Why it's defensible (the "why not just Claude?" answer)</h2>
+  <p>Claude can draft, but it cannot be the <b>system of record for money</b>. It does not persist data, enforce approval policy, or hold an audit trail. This product deliberately puts AI where it is strong — capture and reasoning — and keeps the money-record where it must stay: inside Volopay, human-approved.</p>
+  <div class="callout"><b>The boundary is the moat.</b> The app never calls an LLM; Claude never holds the data. That single design choice is both the defensibility and the compliance story a finance buyer needs to say yes.</div>
+
+  <h2><span class="n">4</span> The growth engine</h2>
+  <div class="cols">
+    <div>
+      <p><b>Low-CAC distribution.</b> MCP is a new channel. A finance lead adds the connector once; every teammate's Claude can now file bills into Volopay. <span class="accent">Land inside the AI tool, expand into the platform.</span></p>
+    </div>
+    <div>
+      <p><b>One-sentence activation.</b> Time-to-value is a single message — no onboarding, no training. That lifts trial activation and hands sales a 30-second "wow" in any demo.</p>
+    </div>
+  </div>
+  <p>The wedge <b>compounds</b>: capture → approval → payment → spend data. Each step raises switching cost and pulls the customer deeper into Volopay.</p>
+
+  <div class="callout" style="background:#eefaf4;border-left-color:#1f9d6b;">
+    <b style="color:#157a52;">The business case in one line:</b> Own the moment a bill is mentioned, and you are positioned to own the payment. AP is Volopay's natural next market, and AI-native capture is the cheapest way in.
+  </div>
+
+  <div class="foot">
+    <span><span class="tag">Market</span> AP expansion off the existing spend graph</span>
+    <span><span class="tag">Wedge</span> AI-native bill capture via MCP</span>
+    <span><span class="tag">Moat</span> AI on top, system-of-record underneath</span>
+  </div>
+</section>
+
+<!-- ================= PAGE 2 — PRODUCT EXECUTION ================= -->
+<section class="page">
+  <div class="hdr">
+    <div class="logo">
+      <div class="mark">V</div>
+      <div>
+        <h1>Bill Approval Inbox</h1>
+        <div class="sub">Product execution — what I built and why</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div><b>Rahul Wagh</b></div>
+      <div>Founder's Office — Product &amp; Growth</div>
+      <div>Page 2 · Product execution</div>
+    </div>
+  </div>
+
+  <h2><span class="n">5</span> What I built — one flow, done well</h2>
+  <p>A <b>live</b> web app plus an MCP server Claude connects to as a custom connector. In Claude, a finance user says "<i>Add a bill: AWS, $1,200, due Nov 30</i>". Claude calls <span class="accent">create_bill</span>; the bill lands in Volopay's <b>Pending Approval</b> queue; a human reviews, edits, approves, marks paid, or rejects it; everything persists and stays live on the internet. Three tools, nothing more:</p>
+  <table>
+    <tr><th style="width:22%">MCP tool</th><th>What it does</th></tr>
+    <tr><td><b>create_bill</b></td><td>Add a vendor bill (starts as <i>pending</i>), tagged as captured via Claude.</td></tr>
+    <tr><td><b>list_bills</b></td><td>List bills, optionally filtered by status.</td></tr>
+    <tr><td><b>update_bill</b></td><td>Approve, mark paid, reject, or edit a bill's fields.</td></tr>
+  </table>
+
+  <h2><span class="n">6</span> The design principle: AI on top, record underneath</h2>
+  <p>A deliberate split of responsibilities is what makes this shippable in a money workflow:</p>
+  <table>
+    <tr><th>Responsibility</th><th style="text-align:center">App (Volopay)</th><th style="text-align:center">Claude (AI)</th></tr>
+    <tr><td>Understand plain language &amp; extract fields</td><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><td>Decide which action to take</td><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><td>Store data durably &amp; keep the audit trail</td><td class="y">✓</td><td class="n">—</td></tr>
+    <tr><td>Approval workflow &amp; statuses</td><td class="y">✓</td><td class="n">—</td></tr>
+    <tr><td>Final human approval of money decisions</td><td class="y">✓</td><td class="n">—</td></tr>
+  </table>
+  <p style="font-size:9.6px;color:#5b6478;">No LLM runs inside the app — there are no AI keys in the codebase. Claude never holds the data. <b style="color:#121726;">That boundary is the entire safety and compliance argument.</b></p>
+
+  <h2><span class="n">7</span> Why one flow, not ten</h2>
+  <p>I scoped this to capture → approval on purpose. A <b>flawless narrow flow</b> proves both the pattern and the safety boundary; breadth would have diluted both and produced a fragile demo. The restraint is the point — it shows where AI belongs in finance, and where it does not.</p>
+
+  <div class="cols">
+    <div>
+      <h2><span class="n">8</span> How we'd measure it</h2>
+      <div class="metric"><b>Activation:</b> % of connected teams filing ≥1 bill in week 1.</div>
+      <div class="metric"><b>Capture rate:</b> bills created via Claude vs. manual entry.</div>
+      <div class="metric"><b>Cycle time:</b> mention → approved.</div>
+      <div class="metric"><b>Expansion:</b> % of capture teams that enable payment.</div>
+      <div class="metric"><b>Trust:</b> % of AI-created bills edited before approval (lower = higher trust).</div>
+    </div>
+    <div>
+      <h2><span class="n">9</span> Roadmap</h2>
+      <div class="metric"><b>Near:</b> OAuth on the connector + SSO; approval policy (spend limits, approver routing, duplicate detection).</div>
+      <div class="metric"><b>Mid:</b> invoice-PDF ingestion (Claude reads the attachment, human approves); accounting/ledger sync; Slack approver nudges.</div>
+      <div class="metric"><b>Long:</b> full AP suite — capture → approve → pay — as a Volopay product line.</div>
+    </div>
+  </div>
+
+  <h2><span class="n">10</span> Honest limitations</h2>
+  <p style="font-size:9.6px;">Demo-stage, by design: the MCP endpoint and UI are unauthenticated; the free host cold-starts (~30–60s) after idle; there is no policy engine, invoice attachment, or multi-tenant separation yet. Each is a known, scoped next step — not a surprise.</p>
+
+  <div class="foot">
+    <span><b>Live app:</b> <a href="https://volopay-bill-inbox.onrender.com">volopay-bill-inbox.onrender.com</a></span>
+    <span><b>MCP:</b> <a href="https://volopay-bill-inbox.onrender.com/mcp/">/mcp/</a></span>
+    <span><b>Code:</b> <a href="https://github.com/rwagh831-pm/volopay-bill-inbox">github.com/rwagh831-pm/volopay-bill-inbox</a></span>
+  </div>
+</section>
+
+</div>
+</body>
+</html>
