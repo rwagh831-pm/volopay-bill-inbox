@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Edit bill{% endblock %}
+{% block body %}
+  <p class="sub"><a class="back" href="/">← Back to inbox</a></p>
+  {% if bill %}
+  <div class="card" style="padding:22px">
+    <form method="post" action="/bill/{{ bill.id }}/edit">
+      <div class="field"><label>Vendor</label><input name="vendor" value="{{ bill.vendor }}" required></div>
+      <div class="row2">
+        <div class="field"><label>Amount</label><input name="amount" type="number" step="0.01" value="{{ bill.amount }}" required></div>
+        <div class="field"><label>Currency</label><input name="currency" value="{{ bill.currency }}"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Due date</label><input name="due_date" value="{{ bill.due_date or '' }}" placeholder="2026-11-30"></div>
+        <div class="field"><label>Category</label><input name="category" value="{{ bill.category or '' }}"></div>
+      </div>
+      <div class="field"><label>Status</label>
+        <select name="status">
+          {% for s in ['pending','approved','paid','rejected'] %}
+          <option value="{{ s }}" {% if bill.status==s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field"><label>Notes</label><textarea name="notes" rows="3">{{ bill.notes or '' }}</textarea></div>
+      <button class="btn btn-primary" type="submit">Save changes</button>
+    </form>
+  </div>
+  {% else %}
+    <div class="card"><div class="empty">Bill not found.</div></div>
+  {% endif %}
+{% endblock %}

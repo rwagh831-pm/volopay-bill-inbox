@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Bill Approval Inbox{% endblock %}
+{% block body %}
+  <p class="sub">Bills your team's Claude dropped in — review, edit and approve. {{ total }} total.</p>
+
+  <div class="chips">
+    <a class="chip {% if not status %}active{% endif %}" href="/">All <b>{{ total }}</b></a>
+    <a class="chip {% if status=='pending' %}active{% endif %}" href="/?status=pending">Pending <b>{{ counts.pending }}</b></a>
+    <a class="chip {% if status=='approved' %}active{% endif %}" href="/?status=approved">Approved <b>{{ counts.approved }}</b></a>
+    <a class="chip {% if status=='paid' %}active{% endif %}" href="/?status=paid">Paid <b>{{ counts.paid }}</b></a>
+    <a class="chip {% if status=='rejected' %}active{% endif %}" href="/?status=rejected">Rejected <b>{{ counts.rejected }}</b></a>
+  </div>
+
+  <div class="card">
+    {% if bills %}
+    <table>
+      <thead><tr><th>Vendor</th><th>Amount</th><th>Due</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for b in bills %}
+        <tr>
+          <td><span class="vendor">{{ b.vendor }}</span>{% if b.source=='claude' %}<span class="src">via Claude</span>{% endif %}</td>
+          <td class="amt">{{ b.currency }} {{ "%.2f"|format(b.amount) }}</td>
+          <td>{{ b.due_date or "—" }}</td>
+          <td>{{ b.category or "—" }}</td>
+          <td><span class="badge b-{{ b.status }}">{{ b.status }}</span></td>
+          <td>
+            <div class="actions">
+              <a class="btn" href="/bill/{{ b.id }}/edit">Edit</a>
+              {% if b.status != 'approved' and b.status != 'paid' %}
+              <form class="inline" method="post" action="/bill/{{ b.id }}/approve"><button class="btn btn-primary">Approve</button></form>
+              {% endif %}
+              {% if b.status == 'approved' %}
+              <form class="inline" method="post" action="/bill/{{ b.id }}/pay"><button class="btn btn-green">Mark paid</button></form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="empty">No bills yet. Ask your Claude: <br><b>"Add a bill: AWS, 1200 USD, due 2026-11-30, category cloud."</b></div>
+    {% endif %}
+  </div>
+{% endblock %}
